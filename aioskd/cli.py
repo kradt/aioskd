@@ -2,6 +2,7 @@ import sys
 import click
 from importlib.machinery import SourceFileLoader
 
+
 sys.path.append(".")
 
 class CustomPath(click.Path):
@@ -23,14 +24,10 @@ class CustomPath(click.Path):
         return converted_path, filename, obj
 
 
-@click.group()
-def cli():
-    pass
-
-
-@cli.command()
+@click.command()
 @click.option("--app", "-A", help="path to file with tasks in simple format", type=CustomPath(exists=True))
-def scheduler(app):
+def schedule(app):
+ 
     """Start work task's scheduler
 
         \b
@@ -52,6 +49,5 @@ def scheduler(app):
     scheduler = getattr(module, obj)
     scheduler.run()
 
-
 if __name__ == "__main__":
-    cli()
+    schedule()

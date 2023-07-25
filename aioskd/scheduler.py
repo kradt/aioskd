@@ -4,7 +4,7 @@ from typing import Callable
 from inspect import iscoroutinefunction
 
 
-class AioSchedulerTask:
+class SchedulerTask:
     """
         A class that displays the task of the scheduler
         :param task: Asynchronous function to be executed
@@ -46,7 +46,7 @@ class AioSchedulerTask:
         return f"<SchedulerTask task={self.task}"
 
 
-class AioScheduler:
+class Scheduler:
     """
         A scheduler class that is used to perform background tasks in another process.
         
@@ -65,7 +65,7 @@ class AioScheduler:
     def __init__(self):
         self.tasks = []
 
-    async def _execute_task(self, task: AioSchedulerTask) -> None:
+    async def _execute_task(self, task: SchedulerTask) -> None:
         """
             A coroutine that checks if it is time to execute the task, if so, executes it, if the task needs to be executed once (repeat), interrupts it, if not, sets a new time
             :param task: The task to be executed
@@ -106,7 +106,7 @@ class AioScheduler:
             """
             if not iscoroutinefunction(func):
                 raise ValueError("Function under decorator must be await. Use 'async def' syntax")
-            task = AioSchedulerTask(task=func, interval=interval, repeat=repeat, immediate=immediate)
+            task = SchedulerTask(task=func, interval=interval, repeat=repeat, immediate=immediate)
             self.tasks.append(task)
 
         return wrapper
