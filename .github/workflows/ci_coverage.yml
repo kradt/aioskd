@@ -19,6 +19,9 @@ jobs:
         
     - name: Install coverage
       run: python -m pip install coverage
+
+    - name: Install pytest-async
+      run: python -m pip install pytest-asyncio
     
     - name: Install pytest
       run: python -m pip install pytest
@@ -32,7 +35,7 @@ jobs:
       shell: bash
 
     - name: Generate coverage report
-      run: coverage json -d coverage_report
+      run: coverage html -d coverage_report
       continue-on-error: true
 
     - name: Upload coverage reports to Codecov
