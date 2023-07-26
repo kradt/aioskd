@@ -1,4 +1,9 @@
 # aioskd - Asynchronous Background Task Scheduler
+[![PyPI version](https://img.shields.io/pypi/v/aioskd.svg)](https://pypi.org/project/aioskd/)
+![License](https://img.shields.io/github/license/kradt/aioskd)
+[![codecov](https://codecov.io/gh/kradt/aioskd/branch/main/graph/badge.svg?token=P0YWHFXKQP)](https://codecov.io/gh/kradt/aioskd)
+[![tests](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml/badge.svg)](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml)
+
 
 aioskd is a powerful tool for executing background tasks asynchronously at scheduled intervals. It features a flexible scheduler that can be easily adapted to suit the user's specific needs.
 
