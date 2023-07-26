@@ -40,17 +40,17 @@ import asyncio
 
 
 @skd.schedule(interval=datetime.timedelta(seconds=1))
-async def task_one():     
-	print("Task One - Hello world!")     
-	await asyncio.sleep(2)  
-	# Simulate some async work taking 2 seconds  
+async def task_one():
+    print("Task One - Hello world!")     
+    await asyncio.sleep(2)  
+    # Simulate some async work taking 2 seconds  
 	
 
 @skd.schedule(interval=datetime.timedelta(seconds=5))
 async def task_two():
-	print("Task Two - I'm running every 5 seconds!")
-	await asyncio.sleep(1) 
-	# Simulate some async work taking 1 second
+    print("Task Two - I'm running every 5 seconds!")
+    await asyncio.sleep(1) 
+    # Simulate some async work taking 1 second
 ```
 
 
@@ -77,26 +77,29 @@ skd path/to/file/with/tasks:obj_of_skd
 ### Example 1: Scheduling a Task to Fetch Data
 
 ```python
-import datetime 
+import datetime
 import asyncio
-import requests
+import aiohttp
+from aioskd import Scheduler
+
+skd = Scheduler()
 
 
 @skd.schedule(interval=datetime.timedelta(minutes=30))
 async def fetch_data():
-	url = "https://api.example.com/data"
-	async with aiohttp.ClientSession() as session:
-		async with session.get(url) as response:
-			if response.status == 200:
-				data = await response.json() 
-				# Process and store the data as needed 
-				print("Data fetched successfully!") 
-			else:
-				print("Failed to fetch data. Status code:", response.status)
+    url = "https://api.example.com/data"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                data = await response.json() 
+		# Process and store the data as needed 
+		print("Data fetched successfully!") 
+            else:
+		print("Failed to fetch data. Status code:", response.status)
 
 
 if __name__ == "__main__":
-	skd.run()
+    skd.run()
 ```
 	
 In this example, the `fetch_data` task is scheduled to run every 30 minutes. It sends a request to an API to fetch data and then processes the response accordingly.
@@ -106,25 +109,28 @@ In this example, the `fetch_data` task is scheduled to run every 30 minutes. It 
 ```python
 import datetime
 import asyncio
-import smtplib
-from email.message import EmailMessage  
+import aiosmtplib
+from email.message import EmailMessage
+from aioskd import Scheduler
 
+
+skd = Scheduler() 
 
 @skd.schedule(interval=datetime.timedelta(hours=24))
 async def send_reminder_email():
-	email_content = "Hello! Just a friendly reminder that your appointment is tomorrow."
-	msg = EmailMessage()
-	msg.set_content(email_content)
-	msg["Subject"] = "Appointment Reminder"
-	msg["From"] = "your_email@example.com"
-	msg["To"] = "recipient@example.com" 
-	async with aiosmtplib.SMTP("smtp.example.com", 587) as server:
-		await server.starttls()
-		await server.login("your_email@example.com", "your_email_password")
-		await server.send_message(msg)
+    email_content = "Hello! Just a friendly reminder that your appointment is tomorrow."
+    msg = EmailMessage()
+    msg.set_content(email_content)
+    msg["Subject"] = "Appointment Reminder"
+    msg["From"] = "your_email@example.com"
+    msg["To"] = "recipient@example.com" 
+    async with aiosmtplib.SMTP("smtp.example.com", 587) as server:
+	await server.starttls()
+	await server.login("your_email@example.com", "your_email_password")
+	await server.send_message(msg)
 
 if __name__ == "__main__":
-	skd.run()
+    skd.run()
 ```
 
 This example schedules the `send_reminder_email` task to run once every 24 hours, sending a reminder email to a specified recipient about an upcoming appointment.
