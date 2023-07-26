@@ -64,8 +64,13 @@ async def test_time_to_do_in_task(task):
 
 @pytest.mark.asyncio
 async def test_wait_for_interval_method_in_task(task):
-    time_start = datetime.datetime.now()
     task.interval = datetime.timedelta(seconds=1)
+    # Test that wait_fo_interval raise error
+    with pytest.raises(RuntimeError) as err:
+        await task.wait_for_interval()
+    assert "set_time() must be called" in str(err.value)
+
+    time_start = datetime.datetime.now()
     task.set_time()
     # Test that wait_fo_interval wait correctly
     await task.wait_for_interval()
@@ -73,23 +78,17 @@ async def test_wait_for_interval_method_in_task(task):
     assert int(difference_of_time) == int(task.interval.total_seconds())
 
 
-@pytest.mark.asyncio
-async def test_wait_for_interval_method_without_time_to_in_task(task):
-    time_start = datetime.datetime.now()
-    task.interval = datetime.timedelta(seconds=1)
-    # Test that wait_fo_interval raise error
-    with pytest.raises(RuntimeError) as err:
-        await task.wait_for_interval()
-
-    assert "set_time() must be called" in str(err.value)
-
 
 @pytest.mark.asyncio
 async def test_iter_count_without_repeat(scheduler, async_function):
     with pytest.raises(ValueError) as err:
-        task = scheduler.schedule(interval=datetime.timedelta(seconds=1), repeat=False, iter_count=5)(async_function)
+        scheduler.schedule(interval=datetime.timedelta(seconds=1), repeat=False, iter_count=5)(async_function)
 
     assert "If you want to repeat set arg repeat=True" in str(err.value)
+    task = scheduler.schedule(interval=datetime.timedelta(seconds=1), iter_count=5)(async_function)
+    assert task.repeat == True
+    assert task.iter_count == 5
+
 
 def test_next_iter(scheduler, task):
     task_counts = task.count
