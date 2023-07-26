@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v2.2.1
       with:
         python-version: '3.11' 
         
@@ -30,7 +30,7 @@ jobs:
       run: |
         python -m coverage run -m pytest tests
         coverage_percentage=$(coverage report | awk 'END {print $4}')
-        echo "::set-output name=coverage_percentage::$coverage_percentage"
+        echo "COVERAGE_PERCENTAGE=$coverage_percentage" >> $GITHUB_ENV
       shell: bash
 
     - name: Generate coverage report
@@ -46,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v2.4.3
 
     - name: Create coverage badge
       run: |
