@@ -31,5 +31,3 @@ def task(scheduler, async_function):
 @pytest.fixture(scope="function")
 def click_CLI():
     yield CliRunner()
-    
-
