@@ -21,7 +21,7 @@ setup(
   ],
   entry_points='''
         [console_scripts]
-        schedule=scheduler.cli:schedule
+        skd=aioskd.cli:skd
   ''',
   keywords='background tasks asyncio async',
   python_requires='>=3.11'

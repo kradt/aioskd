@@ -1,6 +1,6 @@
 import sys
 import click
-from importlib.machinery import SourceFileLoader
+from importlib.util import spec_from_file_location, module_from_spec
 
 
 sys.path.append(".")
@@ -25,8 +25,8 @@ class CustomPath(click.Path):
 
 
 @click.command()
-@click.option("--app", "-A", help="path to file with tasks in simple format", type=CustomPath(exists=True))
-def schedule(app):
+@click.argument("app", type=CustomPath(exists=True))
+def skd(app):
  
     """Start work task's scheduler
 
@@ -42,12 +42,18 @@ def schedule(app):
     """
     path, name, obj = app
     
-    # Find import and execute module with tasks
-    module = SourceFileLoader(name, path).load_module()
+
+    # Create a spec for the module from the given file path
+    spec = spec_from_file_location(name, path)
+    # Create the module from the spec
+    module = module_from_spec(spec)
+    # Load and execute the module
+    spec.loader.exec_module(module)
 
     # Start Scheduler
     scheduler = getattr(module, obj)
     scheduler.run()
+    click.echo("Tasks completed successfully")
 
-if __name__ == "__main__":
-    schedule()
+if __name__ == "__main__": # pragma: no cover
+    skd()

@@ -11,27 +11,39 @@ class SchedulerTask:
         :param interval: The interval between which the asynchronous function should be executed
         :param repeat: Indicates whether the asynchronous function should be repeated or executed once
         :param immediate: If yes, the scheduler will not wait for the interval when starting the task for the FIRST TIME
+        :param iter_count: necessary number of repeats
+
     """
-    def __init__(self, task: Callable, interval: datetime.timedelta, repeat: bool = True, immediate: bool = False) -> None:
+    def __init__(self, task: Callable, interval: datetime.timedelta, immediate: bool = False, repeat: bool = True, iter_count: int | None = None) -> None:
         self.task = task
         self.interval = interval
+        self.count = 0
         self.repeat = repeat
-        self.immediate = immediate
+        self.iter_count = iter_count
+        if self.iter_count and not self.repeat:
+            raise ValueError("If you want to repeat set arg repeat=True")
 
+        self.immediate = immediate
         if self.immediate:
             self.time_to = datetime.datetime.now()
         else:
             self.time_to = None
 
-    def set_time(self) -> None:
+    def next_iter(self):
+        self.count += 1
+        self.set_time()
+
+    def set_time(self) -> datetime.datetime:
         """
             Sets the time at which the self.task should be executed
         """
         self.time_to = datetime.datetime.now() + self.interval
+        return self.time_to
 
     async def wait_for_interval(self) -> None:
+        if not self.time_to:
+            raise RuntimeError("set_time() must be called")
         amount_of_time = self.time_to - datetime.datetime.now()
-
         await asyncio.sleep(amount_of_time.total_seconds())
 
     def time_to_do(self) -> bool:
@@ -73,9 +85,9 @@ class Scheduler:
         while True:
             if task.time_to_do():
                 await task.task()
-                if not task.repeat:
+                if not task.repeat or task.count == task.iter_count:
                     break
-                task.set_time()
+                task.next_iter()
 
             await task.wait_for_interval()
 
@@ -93,12 +105,13 @@ class Scheduler:
         tasks = [asyncio.create_task(self._execute_task(task)) for task in self.tasks]
         await asyncio.gather(*tasks)
 
-    def schedule(self, interval: datetime.timedelta, repeat: bool = True, immediate: bool = False) -> Callable:
+    def schedule(self, interval: datetime.timedelta, immediate: bool = False, repeat: bool = True, iter_count: int | None = None) -> Callable:
         """
             Decorator that collects all the coroutines that need to be executed with time scheduling
             :param interval: The interval between which the asynchronous function should be executed
             :param repeat: Indicates whether the asynchronous function should be repeated or executed once
             :param immediate: If yes, the scheduler will not wait for the interval when starting the task for the FIRST TIME
+            :param iter_count: necessary number of repeats
         """
         def wrapper(func) -> None:
             """
@@ -106,8 +119,9 @@ class Scheduler:
             """
             if not iscoroutinefunction(func):
                 raise ValueError("Function under decorator must be await. Use 'async def' syntax")
-            task = SchedulerTask(task=func, interval=interval, repeat=repeat, immediate=immediate)
+            task = SchedulerTask(task=func, interval=interval, repeat=repeat, immediate=immediate, iter_count=iter_count)
             self.tasks.append(task)
+            return task
 
         return wrapper
 
