@@ -23,6 +23,6 @@ setup(
         [console_scripts]
         skd=aioskd.cli:skd
   ''',
-  keywords='background tasks asyncio async',
+  keywords='async, scheduling, background-tasks, asynchronous-programming, scheduler-library, python, task-scheduler, background-processing, concurrency, asyncio, timed-tasks, library, python3, interval-tasks, task-scheduling, asynchronous-background-tasks, background-scheduler, background-jobs, background-execution, task-execution, scheduling-tasks, async-jobs, async-tasks, job-scheduler, task-runner, task-manager, background-',
   python_requires='>=3.11'
 )
