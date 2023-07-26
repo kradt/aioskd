@@ -82,8 +82,8 @@ import asyncio
 import aiohttp
 from aioskd import Scheduler
 
-skd = Scheduler()
 
+skd = Scheduler()
 
 @skd.schedule(interval=datetime.timedelta(minutes=30))
 async def fetch_data():
