@@ -24,10 +24,10 @@ jobs:
       run: pip install click
 
     - name: Run tests
-      run: pytest tests
+      run: python -m pytest tests
 
     - name: Test coverage
-      run: coverage run -m pytest tests
+      run: python -m coverage run -m pytest tests
 
     - name: Generate coverage report
       run: coverage html -d coverage_report
