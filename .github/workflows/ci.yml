@@ -15,8 +15,11 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.11'  # Замініть на бажану версію Python (наприклад, '3.8')
-
+        python-version: '3.11' 
+    
+    - name: Install pytest
+      run: python -m pip install pytest
+      
     - name: Install dependencies
       run: pip install click
 
