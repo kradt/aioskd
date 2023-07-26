@@ -1,0 +1,36 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'  # Замініть на бажану версію Python (наприклад, '3.8')
+
+    - name: Install dependencies
+      run: pip install click
+
+    - name: Run tests
+      run: pytest tests
+
+    - name: Test coverage
+      run: coverage run -m pytest tests
+
+    - name: Generate coverage report
+      run: coverage html -d coverage_report
+
+    - name: Upload coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: coverage-report
+        path: coverage_report
