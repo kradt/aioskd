@@ -28,8 +28,8 @@ jobs:
 
     - name: Test coverage
       run: |
-        python -m coverage run -m pytest tests
-        coverage_percentage=$(coverage report | awk 'END {print $4}')
+        python -m coverage run --source=aioskd -m pytest tests
+        coverage_percentage=$(python -m coverage report | awk 'END {print $4}')
         echo "COVERAGE_PERCENTAGE=$coverage_percentage" >> $GITHUB_ENV
       shell: bash
 
