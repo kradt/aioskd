@@ -25,11 +25,11 @@ jobs:
       
     - name: Install click
       run: python -m pip install click
-      
+
 
     - name: Test coverage
       run: |
-        python -m coverage run -m pytest testss
+        python -m coverage run -m pytest tests
         coverage_percentage=$(coverage report | awk 'END {print $4}')
         echo "::set-output name=coverage_percentage::$coverage_percentage"
       shell: bash
@@ -38,7 +38,7 @@ jobs:
       run: coverage html -d coverage_report
       continue-on-error: true
 
-    - name: Set Coverage Percentage
+    - name: Set Coverage Percentage 
       id: set_coverage
       run: echo "coverage_percentage=${{ steps.build.outputs.coverage_percentage }}" >> $GITHUB_ENV
 
