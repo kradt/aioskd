@@ -8,7 +8,7 @@ def get_readme():
 
 setup(
   name='aioskd',
-  version='0.0.4',
+  version='0.0.6',
   author='Artem Sydorenko',
   author_email='kradworkmail@gmail.com',
   description='Tool for execute async background tasks',
@@ -23,6 +23,6 @@ setup(
         [console_scripts]
         skd=aioskd.cli:skd
   ''',
-  keywords='async, scheduling, background-tasks, asynchronous-programming, scheduler-library, python, task-scheduler, background-processing, concurrency, asyncio, timed-tasks, library, python3, interval-tasks, task-scheduling, asynchronous-background-tasks, background-scheduler, background-jobs, background-execution, task-execution, scheduling-tasks, async-jobs, async-tasks, job-scheduler, task-runner, task-manager, background-',
+  keywords='async, scheduling, background-tasks, asynchronous-programming, scheduler-library, python, task-scheduler, background-processing, concurrency, asyncio, timed-tasks, library, python3, interval-tasks, task-scheduling, asynchronous-background-tasks, background-scheduler, background-jobs, background-execution, task-execution, scheduling-tasks, async-jobs, async-tasks, job-scheduler, task-runner, task-manager',
   python_requires='>=3.11'
 )
