@@ -76,7 +76,7 @@ class SchedulerTask:
         return False
 
     def __repr__(self):
-        return f"<SchedulerTask task={self.task}"
+        return f"<SchedulerTask task={self.task.__name__} every {self.interval}"
 
 
 class Scheduler:
@@ -130,10 +130,10 @@ class Scheduler:
             self,
             interval: datetime.timedelta,
             immediate: bool = False,
-            repeat: bool = True,
-            iter_count: int | None = None) -> Callable:
+            repeat: bool = True, iter_count: int | None = None) -> Callable:
         """
             Decorator that collects all the coroutines that need to be executed with time scheduling
+
             :param interval: The interval between which the asynchronous function should be executed
             :param repeat: Indicates whether the asynchronous function should be repeated or executed once
             :param immediate: If yes, the scheduler will not wait for the interval when starting the task for the FIRST TIME
@@ -151,8 +151,23 @@ class Scheduler:
 
         return wrapper
     
-    def register_task(self, task, *args, **kwargs) -> SchedulerTask:
-        new_task = SchedulerTask(task=functools.partial(task, *args, **kwargs))
+    def register_task(self, task: Callable, *args, **kwargs) -> SchedulerTask:
+        """
+            Register a new task without scheduling it.
+
+            This method allows you to manually create a task without using the 'schedule' decorator.
+            The task can later be scheduled
+
+            :param task: The asynchronous function to be performed as the task.
+            :param *args: Positional arguments to be passed to the task function when it is executed.
+            :param **kwargs: Keyword arguments to be passed to the task function when it is executed.
+            :return: A SchedulerTask object representing the registered task.
+            :rtype: SchedulerTask
+        """
+        partial_task = functools.partial(task, *args, **kwargs)
+        functools.update_wrapper(partial_task, task)
+        
+        new_task = SchedulerTask(task=partial_task)
         self.tasks.append(new_task)
         return new_task
 
