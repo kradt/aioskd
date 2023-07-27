@@ -193,17 +193,14 @@ async def send_weather_email(city: str, recipient: str):
 
 
 # Register tasks with different cities and recipients
-task1 = skd.register_task(
-				  send_weather_email, 
-				  "London",
-				  recipient="recipient1@example.com")
+task1 = skd.register_task(send_weather_email, "London", recipient="recipient1@example.com")
 task1.schedule(interval=datetime.timedelta(hours=1))
 
-task2 = skd.register_task(
-				  send_weather_email,
-				  "New York",
-				  recipient="recipient2@example.com")
+task2 = skd.register_task(send_weather_email, "New York", recipient="recipient2@example.com")
 task2.schedule(interval=datetime.timedelta(hours=2))
+
+if __name__ == "__main__":
+    skd.run()
 
 ```
 This example schedules the `send_reminder_email` task to run once every 24 hours, sending a reminder email to a specified recipient about an upcoming appointment.
