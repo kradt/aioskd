@@ -1,11 +1,21 @@
-# aioskd - Asynchronous Background Task Scheduler
+<div align="center">
+	
+# aioskd 
+	
+Asynchronous Background Task Scheduler
+
 [![PyPI version](https://img.shields.io/pypi/v/aioskd.svg)](https://pypi.org/project/aioskd/)
 ![License](https://img.shields.io/github/license/kradt/aioskd)
 [![codecov](https://codecov.io/gh/kradt/aioskd/branch/main/graph/badge.svg?token=P0YWHFXKQP)](https://codecov.io/gh/kradt/aioskd)
 [![tests](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml/badge.svg)](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml)
+</div>
 
+## Project Overview
 
-aioskd is a powerful tool for executing background tasks asynchronously at scheduled intervals. It features a flexible scheduler that can be easily adapted to suit the user's specific needs.
+aioskd is a powerful Python library designed to handle the execution of background tasks asynchronously and at scheduled intervals. It provides an efficient and flexible scheduler, making it effortless to integrate asynchronous background processing into your Python projects.
+
+As applications grow more complex, certain tasks need to be executed in the background without affecting the responsiveness of the main application. AIOSKD is the perfect solution for such scenarios, as it allows you to offload these tasks to asynchronous workers, ensuring smooth execution and a better user experience.
+
 
 ## Features
 
@@ -203,7 +213,6 @@ if __name__ == "__main__":
     skd.run()
 
 ```
-This example schedules the `send_reminder_email` task to run once every 24 hours, sending a reminder email to a specified recipient about an upcoming appointment.
 
 ### `schedule` Decorator
 
