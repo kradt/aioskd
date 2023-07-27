@@ -35,31 +35,46 @@ from aioskd import Scheduler
 skd = Scheduler()
 ```
 
-### Scheduling Tasks
+## Scheduling Tasks
 
-You can now schedule tasks using the `schedule` decorator. 
+### Scheduling Tasks with Decorators (Existing Method)
+You can schedule tasks using the schedule decorator as shown below:
 
 ```python
-import datetime
-import asyncio  
 
+import datetime
+import asyncio
 
 @skd.schedule(interval=datetime.timedelta(seconds=1))
 async def task_one():
     print("Task One - Hello world!")     
-    await asyncio.sleep(2)  
-    # Simulate some async work taking 2 seconds  
-	
+    await asyncio.sleep(2)  # Simulate some async work taking 2 seconds  
 
 @skd.schedule(interval=datetime.timedelta(seconds=5))
 async def task_two():
     print("Task Two - I'm running every 5 seconds!")
-    await asyncio.sleep(1) 
-    # Simulate some async work taking 1 second
+    await asyncio.sleep(1)  # Simulate some async work taking 1 second
 ```
 
+### Scheduling Tasks without Decorators (New Method)
+Alternatively, you can also register tasks without using decorators. Here's how you can do it:
 
-In this example, `task_one` will be executed every 1 second, and `task_two` will be executed every 5 seconds.
+```python
+
+import datetime
+import asyncio
+from aioskd import Scheduler
+
+skd = Scheduler()
+
+async def test_task(name: str, age: int = 25):
+    print(f"Hello {name} with age {age}")
+
+skd.register_task(test_task, "John", age=30).schedule(interval=datetime.timedelta(seconds=5))
+skd.register_task(test_task, "Alice", age=28).schedule(interval=datetime.timedelta(seconds=2))
+```
+In this example, the test_task function is registered with the scheduler using the register_task method. 
+You can pass the function along with its arguments to register_task, and then schedule it with the desired interval using the schedule method.
 
 ### Running the Scheduler
 
@@ -137,7 +152,60 @@ async def send_reminder_email():
 if __name__ == "__main__":
     skd.run()
 ```
+### Example 3: Sending Weather Update Emails
 
+pythonCopy code
+
+```python
+import datetime
+import asyncio
+import aiohttp
+import aiosmtplib
+from email.message import EmailMessage
+from aioskd import Scheduler
+
+
+skd = Scheduler()
+
+async def get_weather_data(city: str) -> dict:
+    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid=YOUR_OPENWEATHERMAP_API_KEY"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            data = await response.json()
+            return data
+
+
+async def send_weather_email(city: str, recipient: str):
+    data = await get_weather_data(city)
+    temperature = data["main"]["temp"]
+    description = data["weather"][0]["description"]
+    email_content = f"Weather Update for {city}:\n\nTemperature: {temperature} °C\nDescription: {description}"
+    msg = EmailMessage()
+    msg.set_content(email_content)
+    msg["Subject"] = f"Weather Update for {city}"
+    msg["From"] = "your_email@example.com"
+    msg["To"] = recipient
+    async with aiosmtplib.SMTP("smtp.example.com", 587) as server:
+        await server.starttls()
+        await server.login("your_email@example.com", "your_email_password")
+        await server.send_message(msg)
+        print(f"Weather update email sent to {recipient}")  
+
+
+# Register tasks with different cities and recipients
+task1 = skd.register_task(
+				  send_weather_email, 
+				  "London",
+				  recipient="recipient1@example.com")
+task1.schedule(interval=datetime.timedelta(hours=1))
+
+task2 = skd.register_task(
+				  send_weather_email,
+				  "New York",
+				  recipient="recipient2@example.com")
+task2.schedule(interval=datetime.timedelta(hours=2))
+
+```
 This example schedules the `send_reminder_email` task to run once every 24 hours, sending a reminder email to a specified recipient about an upcoming appointment.
 
 ### `schedule` Decorator
