@@ -3,7 +3,7 @@ import asyncio
 import pytest
 
 
-def test_schedule_method(scheduler, async_function):
+def test_schedule_of_scheduler_method(scheduler, async_function):
     # Decorator
     task = scheduler.schedule(interval=datetime.timedelta(minutes=5))(async_function)
 
@@ -27,13 +27,13 @@ def test_run_in_scheduler(scheduler):
     # run without tasks
     assert scheduler.run() == None
 
-def test_run_without_repeat(scheduler, task):
-    task.repeat = False
+def test_run_without_repeat(scheduler, scheduled_task):
+    scheduled_task.repeat = False
     assert scheduler.run() == None
 
 
-def test_repr_in_task(task, async_function):
-    assert repr(task) in f"<SchedulerTask task={async_function}"
+def test_repr_in_task(scheduled_task, async_function):
+    assert repr(scheduled_task) in f"<SchedulerTask task={async_function.__name__} every {scheduled_task.interval}"
 
 
 def test_immediate_attr_in_task(scheduler, async_function):
@@ -43,40 +43,39 @@ def test_immediate_attr_in_task(scheduler, async_function):
     assert int(difference_of_time) == 0
 
 
-def test_time_to_is_time_now_plus_interval_in_task( task):
+def test_time_to_is_time_now_plus_interval_in_task(scheduled_task):
     time_start = datetime.datetime.now()
-    setted_time = task.set_time()
+    setted_time = scheduled_task.set_time()
     difference_of_time = (setted_time-time_start).total_seconds()
     # Test that set_time method set time to like datetime.datetime.now() + interval
-    assert int(difference_of_time) == int(task.interval.total_seconds())
-    assert task.time_to == setted_time
+    assert int(difference_of_time) == int(scheduled_task.interval.total_seconds())
+    assert scheduled_task.time_to == setted_time
 
 
 @pytest.mark.asyncio
-async def test_time_to_do_in_task(task):
-    task.interval = datetime.timedelta(seconds=1)
-    task.set_time()
+async def test_time_to_do_in_task(scheduled_task):
+    scheduled_task.interval = datetime.timedelta(seconds=1)
+    scheduled_task.set_time()
     # test that time_to_do return right bool answers
-    assert not task.time_to_do()
+    assert not scheduled_task.time_to_do()
     await asyncio.sleep(1)
-    assert task.time_to_do()
+    assert scheduled_task.time_to_do()
 
 
 @pytest.mark.asyncio
-async def test_wait_for_interval_method_in_task(task):
-    task.interval = datetime.timedelta(seconds=1)
+async def test_wait_for_interval_method_in_task(scheduled_task):
+    scheduled_task.interval = datetime.timedelta(seconds=1)
     # Test that wait_fo_interval raise error
     with pytest.raises(RuntimeError) as err:
-        await task.wait_for_interval()
+        await scheduled_task.wait_for_interval()
     assert "set_time() must be called" in str(err.value)
 
     time_start = datetime.datetime.now()
-    task.set_time()
+    scheduled_task.set_time()
     # Test that wait_fo_interval wait correctly
-    await task.wait_for_interval()
+    await scheduled_task.wait_for_interval()
     difference_of_time = (datetime.datetime.now()-time_start).total_seconds()
-    assert int(difference_of_time) == int(task.interval.total_seconds())
-
+    assert int(difference_of_time) == int(scheduled_task.interval.total_seconds())
 
 
 @pytest.mark.asyncio
@@ -90,19 +89,54 @@ async def test_iter_count_without_repeat(scheduler, async_function):
     assert task.iter_count == 5
 
 
-def test_next_iter(scheduler, task):
-    task_counts = task.count
-    task.next_iter()
-    assert task.count == task_counts + 1
+def test_next_iter(scheduled_task):
+    task_counts = scheduled_task.count
+    scheduled_task.next_iter()
+    assert scheduled_task.count == task_counts + 1
 
 
-def test_simple_task_with_iter_count(scheduler, capsys):
+def test_simple_task_with_iter_count(scheduler, async_function, capsys):
 
-    async def simple_task():
-        print("hello world")
-        await asyncio.sleep(1)
-
-    task = scheduler.schedule(interval=datetime.timedelta(seconds=1), iter_count=2)(simple_task)
+    task = scheduler.schedule(interval=datetime.timedelta(seconds=1), iter_count=2)(async_function)
 
     assert scheduler.run() == None
-    assert "hello world" in capsys.readouterr().out.strip()
+    assert "Hello world" in capsys.readouterr().out.strip()
+
+
+def test_create_task_witout_decorator(scheduler, async_function, capsys):
+    task = scheduler.register_task(async_function)
+    with pytest.raises(ValueError) as err:
+        scheduler.run()
+
+    assert "Task must be scheduled before running. Use task.schedule(interval: datetime.timedelta)" in str(err.value)
+
+    task.schedule(interval=datetime.timedelta(seconds=5), repeat=False)
+    assert scheduler.run() == None
+    assert "Hello world" in capsys.readouterr().out.strip()
+
+def test_create_task_with_args_without_decorator(scheduler, capsys):
+
+    async def test_args(a: int, *args, b: str = "some", **kwargs):
+        print("a")
+        print(args)
+        for i in args:
+            print(f"arg in args: {i}")
+        print(b)
+        print(kwargs)
+        for i in kwargs:
+            print(f"{i} = {kwargs[i]}")
+
+    task = scheduler.register_task(test_args, 5, 3, 4, 23, 3, b="yes", name="Robert", age=25)
+
+    with pytest.raises(ValueError) as err:
+        scheduler.run()
+
+    assert "Task must be scheduled before running. Use task.schedule(interval: datetime.timedelta)" in str(err.value)
+    task.schedule(interval=datetime.timedelta(seconds=5), repeat=False)
+    assert scheduler.run() == None
+    out = capsys.readouterr().out.strip()
+    assert "age = 25" in out
+    assert "name = Robert" in out
+    assert "5" in out
+    assert "arg in args: 23" in out
+    assert "yes" in out
