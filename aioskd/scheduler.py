@@ -1,6 +1,7 @@
 import asyncio
 import datetime
 from typing import Callable
+import functools
 from inspect import iscoroutinefunction
 
 
@@ -14,7 +15,14 @@ class SchedulerTask:
         :param iter_count: necessary number of repeats
 
     """
-    def __init__(self, task: Callable, interval: datetime.timedelta, immediate: bool = False, repeat: bool = True, iter_count: int | None = None) -> None:
+    def __init__(
+            self,
+            task: Callable,
+            interval: datetime.timedelta | None = None,
+            immediate: bool = False,
+            repeat: bool = True,
+            iter_count: int | None = None) -> None:
+        
         self.task = task
         self.interval = interval
         self.count = 0
@@ -29,6 +37,15 @@ class SchedulerTask:
         else:
             self.time_to = None
 
+    def schedule(
+            self,
+            interval: datetime.timedelta,
+            immediate: bool = False,
+            repeat: bool = True,
+            iter_count: int | None = None) -> None:
+        
+        self.__init__(task=self.task, interval=interval, immediate=immediate, repeat=repeat, iter_count=iter_count)
+
     def next_iter(self):
         self.count += 1
         self.set_time()
@@ -37,12 +54,16 @@ class SchedulerTask:
         """
             Sets the time at which the self.task should be executed
         """
+        if not self.interval:
+            raise ValueError("Task must be scheduled before running. Use task.schedule(interval: datetime.timedelta)")
+
         self.time_to = datetime.datetime.now() + self.interval
         return self.time_to
 
     async def wait_for_interval(self) -> None:
         if not self.time_to:
             raise RuntimeError("set_time() must be called")
+        
         amount_of_time = self.time_to - datetime.datetime.now()
         await asyncio.sleep(amount_of_time.total_seconds())
 
@@ -105,7 +126,12 @@ class Scheduler:
         tasks = [asyncio.create_task(self._execute_task(task)) for task in self.tasks]
         await asyncio.gather(*tasks)
 
-    def schedule(self, interval: datetime.timedelta, immediate: bool = False, repeat: bool = True, iter_count: int | None = None) -> Callable:
+    def schedule(
+            self,
+            interval: datetime.timedelta,
+            immediate: bool = False,
+            repeat: bool = True,
+            iter_count: int | None = None) -> Callable:
         """
             Decorator that collects all the coroutines that need to be executed with time scheduling
             :param interval: The interval between which the asynchronous function should be executed
@@ -124,6 +150,11 @@ class Scheduler:
             return task
 
         return wrapper
+    
+    def register_task(self, task, *args, **kwargs) -> SchedulerTask:
+        new_task = SchedulerTask(task=functools.partial(task, *args, **kwargs))
+        self.tasks.append(new_task)
+        return new_task
 
     def run(self) -> None:
         asyncio.run(self._run_with_interval())
