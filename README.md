@@ -162,9 +162,9 @@ async def send_reminder_email():
 if __name__ == "__main__":
     skd.run()
 ```
-### Example 3: Sending Weather Update Emails
+This example schedules the send_reminder_email task to run once every 24 hours, sending a reminder email to a specified recipient about an upcoming appointment.
 
-pythonCopy code
+### Example 3: Sending Weather Update Emails
 
 ```python
 import datetime
@@ -213,6 +213,7 @@ if __name__ == "__main__":
     skd.run()
 
 ```
+This code demonstrates the use of AIOSKD to send weather updates via email.
 
 ### `schedule` Decorator
 
