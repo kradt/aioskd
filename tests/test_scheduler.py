@@ -140,3 +140,12 @@ def test_create_task_with_args_without_decorator(scheduler, capsys):
     assert "5" in out
     assert "arg in args: 23" in out
     assert "yes" in out
+
+
+def test_running_task_in_existing_event_loop(scheduler, scheduled_task, capsys):
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    scheduled_task.repeat = False
+    assert scheduler.run() == None
+    assert "Hello world" in capsys.readouterr().out.strip()
