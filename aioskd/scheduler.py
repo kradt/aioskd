@@ -172,4 +172,10 @@ class Scheduler:
         return new_task
 
     def run(self) -> None:
-        asyncio.run(self._run_with_interval())
+        try:
+            loop = asyncio.get_running_loop()
+            loop.create_task(self._run_with_interval())
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            loop.run_until_complete(self._run_with_interval())
