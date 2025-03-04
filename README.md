@@ -8,6 +8,7 @@ Asynchronous Background Task Scheduler
 ![License](https://img.shields.io/github/license/kradt/aioskd)
 [![codecov](https://codecov.io/gh/kradt/aioskd/branch/main/graph/badge.svg?token=P0YWHFXKQP)](https://codecov.io/gh/kradt/aioskd)
 [![tests](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml/badge.svg)](https://github.com/kradt/aioskd/actions/workflows/ci_tests.yml)
+[![PyPI Downloads](https://static.pepy.tech/badge/aioskd)](https://pepy.tech/projects/aioskd)
 </div>
 
 ## Project Overview
